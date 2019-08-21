@@ -51,7 +51,7 @@ def generate_dataset_and_showcase(folder, countryname, countrydata, headers):
     dataset.set_expected_update_frequency('Every year')
     dataset.set_subnational(True)
     dataset.add_country_location(countryiso)
-    tags = ['hxl', 'violence and conflict', 'protests']
+    tags = ['hxl', 'violence and conflict', 'protests', 'security incidents']
     dataset.add_tags(tags)
 
     earliest_year = 10000
