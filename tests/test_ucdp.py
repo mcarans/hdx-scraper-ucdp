@@ -47,7 +47,7 @@ class TestUCDP():
 
     @pytest.fixture(scope='class')
     def data(self):
-        download_url = 'https://github.com/OCHA-DAP/hdx-scraper-ucdp/raw/master/tests/fixtures/ged191-csv.zip'
+        download_url = 'https://github.com/OCHA-DAP/hdx-scraper-ucdp/raw/master/tests/fixtures/download.zip'
         return get_countriesdata(download_url, Download(user_agent='test'))
 
     def test_get_countriesdata(self, data):
