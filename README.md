@@ -1,7 +1,7 @@
 ### Collector for UCDP's Datasets
 [![Build Status](https://travis-ci.org/OCHA-DAP/hdx-scraper-ucdp.svg?branch=master&ts=1)](https://travis-ci.org/OCHA-DAP/hdx-scraper-ucdp) [![Coverage Status](https://coveralls.io/repos/github/OCHA-DAP/hdx-scraper-ucdp/badge.svg?branch=master&ts=1)](https://coveralls.io/github/OCHA-DAP/hdx-scraper-ucdp?branch=master)
 
-This script connects to the [UCDP website](https://ucdp.uu.se/) and reads from the large download of all data creating a dataset per country in HDX. The scraper takes around half an hour to run. It makes 1 large read (<20Mb)) from UCDP and 1000 read/writes (API calls) to HDX in total. It creates temporary files which will be no larger than 10Mb which it uploads into HDX. It is run when UCDP make changes, in practice this is in the order of once or twice a year. 
+This script connects to the [UCDP website](https://ucdp.uu.se/) and reads from the large download of all data creating a dataset per country in HDX. The scraper takes around half an hour to run. It makes 1 large read (<20Mb)) from UCDP and 1000 read/writes (API calls) to HDX in total. It creates temporary files which will be no larger than 20Mb (and mostly much smaller) which it uploads into HDX. It is run when UCDP make changes, in practice this is in the order of once or twice a year. 
 
 
 ### Usage
