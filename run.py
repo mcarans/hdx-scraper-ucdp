@@ -10,12 +10,9 @@ from os.path import join, expanduser
 from hdx.hdx_configuration import Configuration
 from hdx.utilities.downloader import Download
 
-from hdx.facades import logging_kwargs
 from hdx.utilities.path import temp_dir
 
 from ucdp import generate_dataset_and_showcase, get_countriesdata, generate_resource_view
-
-logging_kwargs['smtp_config_yaml'] = join('config', 'smtp_configuration.yml')
 
 from hdx.facades.simple import facade
 
