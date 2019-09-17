@@ -22,7 +22,7 @@ from ucdp import generate_dataset_and_showcase, get_countriesdata, generate_reso
 
 class TestUCDP():
     dataset = {'name': 'ucdp-data-for-bangladesh', 'title': 'Bangladesh - Conflict Data',
-               'maintainer': '196196be-6037-4488-8b71-d786adf4c081', 'owner_org': 'hdx', 'data_update_frequency': '365',
+               'maintainer': '196196be-6037-4488-8b71-d786adf4c081', 'owner_org': 'hdx', 'data_update_frequency': '-2',
                'subnational': '1', 'groups': [{'name': 'bgd'}],
                'tags': [{'name': 'hxl', 'vocabulary_id': '4e61d464-4943-4e97-973a-84673c1aaa87'},
                         {'name': 'violence and conflict', 'vocabulary_id': '4e61d464-4943-4e97-973a-84673c1aaa87'},
