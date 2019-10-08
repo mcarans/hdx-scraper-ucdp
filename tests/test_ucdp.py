@@ -25,13 +25,13 @@ class TestUCDP():
                         {'name': 'violence and conflict', 'vocabulary_id': '4e61d464-4943-4e97-973a-84673c1aaa87'},
                         {'name': 'protests', 'vocabulary_id': '4e61d464-4943-4e97-973a-84673c1aaa87'},
                         {'name': 'security incidents', 'vocabulary_id': '4e61d464-4943-4e97-973a-84673c1aaa87'}],
-               'dataset_date': '01/01/1989-12/31/2018', 'dataset_preview': 'resource_id'}
+               'dataset_date': '01/01/1989-12/31/2018'}
 
     resources = [{'name': 'Conflict Data for Bangladesh', 'description': 'Conflict data with HXL tags', 'format': 'csv',
-                  'resource_type': 'file.upload', 'url_type': 'upload', 'dataset_preview_enabled': 'False'},
+                  'resource_type': 'file.upload', 'url_type': 'upload'},
                  {'name': 'QuickCharts Conflict Data for Bangladesh',
                   'description': 'Conflict data with HXL tags with columns removed', 'format': 'csv',
-                  'resource_type': 'file.upload', 'url_type': 'upload', 'dataset_preview_enabled': 'True'}]
+                  'resource_type': 'file.upload', 'url_type': 'upload'}]
 
     @pytest.fixture(scope='function')
     def configuration(self):
