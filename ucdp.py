@@ -22,7 +22,6 @@ from hdx.utilities.dictandlist import write_list_to_csv, dict_of_lists_add
 from slugify import slugify
 
 logger = logging.getLogger(__name__)
-quickchart_resourceno = 1
 
 
 def get_countriesdata(download_url, downloader):
@@ -108,7 +107,7 @@ def generate_dataset_and_showcase(folder, countryname, countrydata, headers):
     write_list_to_csv(qcrows, file_to_upload, headers=list(qcrows[0].keys()))
     resource.set_file_to_upload(file_to_upload)
     dataset.add_update_resource(resource)
-    dataset.set_quickchart_resource(quickchart_resourceno)
+
     showcase = Showcase({
         'name': '%s-showcase' % slugified_name,
         'title': title,
@@ -118,9 +117,3 @@ def generate_dataset_and_showcase(folder, countryname, countrydata, headers):
     })
     showcase.add_tags(tags)
     return dataset, showcase
-
-
-def generate_resource_view(dataset):
-    resourceview = ResourceView({'resource_id': dataset.get_resource(quickchart_resourceno)['id']})
-    resourceview.update_from_yaml()
-    return resourceview
