@@ -22,22 +22,39 @@ from hdx.utilities.dictandlist import write_list_to_csv, dict_of_lists_add
 from slugify import slugify
 
 logger = logging.getLogger(__name__)
+hxltags = {'year': '#date+year', 'start_year': '#date+year+start', 'end_year': '#date+year+end',
+           'side_a': '#group+name+first', 'side_b': '#group+name+second', 'source_article': '#meta+source',
+           'source_headline': '#description', 'where_coordinates': '#loc+name', 'adm_1': '#adm1+name',
+           'adm_2': '#adm2+name', 'latitude': '#geo+lat', 'longitude': '#geo+lon', 'country': '#country+name',
+           'iso3': '#country+code', 'region': '#region+name', 'date_start': '#date+start', 'date_end': '#date+end',
+           'best': '#affected+killed'}
 
 
 def get_countriesdata(download_url, downloader):
+    countrynameisomapping = dict()
     countriesdata = dict()
-    headers = list()
-    for row in downloader.get_tabular_rows(download_url, dict_rows=True, headers=1):
-        headers = deepcopy(downloader.response.headers)
-        dict_of_lists_add(countriesdata, row['country'], row)
-    return countriesdata, headers
+    headers, iterator = downloader.get_tabular_rows(download_url, headers=1, dict_form=True)
+    countries = list()
+    for row in iterator:
+        countryname = row['country']
+        countryiso = countrynameisomapping.get(countryname)
+        if countryiso is None:
+            countryiso, _ = Country.get_iso3_country_code_fuzzy(countryname, exception=ValueError)
+            countrynameisomapping[countryname] = countryiso
+            countries.append({'iso3': countryiso, 'countryname': Country.get_country_name_from_iso3(countryiso), 'origname': countryname})
+        row['iso3'] = countryiso
+        dict_of_lists_add(countriesdata, countryiso, row)
+    headers.insert(30, 'iso3')
+    headers.insert(3, 'end_year')
+    headers.insert(3, 'start_year')
+    return countries, headers, countriesdata
 
 
-def generate_dataset_and_showcase(folder, countryname, countrydata, headers):
+def generate_dataset_and_showcase(folder, country, countrydata, headers):
     """
     """
-    countryiso, _ = Country.get_iso3_country_code_fuzzy(countryname, exception=ValueError)
-    countryname = Country.get_country_name_from_iso3(countryiso)
+    countryiso  = country['iso3']
+    countryname = country['countryname']
     title = '%s - Conflict Data' % countryname
     logger.info('Creating dataset: %s' % title)
     slugified_name = slugify('UCDP Data for %s' % countryname).lower()
@@ -47,66 +64,33 @@ def generate_dataset_and_showcase(folder, countryname, countrydata, headers):
     })
     dataset.set_maintainer('196196be-6037-4488-8b71-d786adf4c081')
     dataset.set_organization('hdx')
-    dataset.set_expected_update_frequency('As needed')
+    dataset.set_expected_update_frequency('Every day')
     dataset.set_subnational(True)
     dataset.add_country_location(countryiso)
     tags = ['hxl', 'violence and conflict', 'protests', 'security incidents']
     dataset.add_tags(tags)
 
-    earliest_year = 10000
-    latest_year = 0
-    rows = list()
-    qcrows = list()
-    # hxlate
-    hxlrow = {'year': '#date+year', 'side_a': '#group+name+first', 'side_b': '#group+name+second',
-              'source_article': '#meta+source', 'source_headline': '#description', 'where_coordinates': '#loc+name',
-              'adm_1': '#adm1+name', 'adm_2': '#adm2+name', 'latitude': '#geo+lat', 'longitude': '#geo+lon',
-              'country': '#country+name', 'region': '#region+name', 'date_start': '#date+start',
-              'date_end': '#date+end', 'best': '#affected+killed', 'iso3': '#country+code'}
-    rows.append(hxlrow)
-    hxlrow = OrderedDict([('year', '#date+year'), ('where_coordinates', '#loc+name'),
-                          ('adm_1', '#adm1+name'), ('adm_2', '#adm2+name'), ('date_start', '#date+start'),
-                          ('date_end', '#date+end'), ('best', '#affected+killed')])
-    qcrows.append(hxlrow)
-    for row in countrydata:
-        date_start = int(row['date_start'][:4])
-        date_end = int(row['date_end'][:4])
-        if date_start < earliest_year:
-            earliest_year = date_start
-        if date_end > latest_year:
-            latest_year = date_end
-        row['iso3'] = countryiso
-        rows.append(row)
-        qcrow = OrderedDict([('year', row['year']), ('where_coordinates', row['where_coordinates']),
-                             ('adm_1', row['adm_1']), ('adm_2', row['adm_2']), ('date_start', row['date_start']),
-                             ('date_end', row['date_end']), ('best', row['best'])])
-        qcrows.append(qcrow)
-    if earliest_year == 10000 or latest_year == 0:
+    filename = 'conflict_data_%s.csv' % countryiso
+    resourcedata = {
+        'name': 'Conflict Data for %s' % countryname,
+        'description': 'Conflict data with HXL tags'
+    }
+
+    def process_year(years, row):
+        start_year = int(row['date_start'][:4])
+        end_year = int(row['date_end'][:4])
+        years.add(start_year)
+        years.add(end_year)
+        row['start_year'] = start_year
+        row['end_year'] = end_year
+
+    quickcharts = {'cutdown': 2, 'cutdownhashtags': ['#date+year+end', '#adm1+name', '#affected+killed']}
+    success, results = dataset.generate_resource_from_download(headers, countrydata, hxltags, folder, filename,
+                                                               resourcedata, year_function=process_year,
+                                                               quickcharts=quickcharts)
+    if success is False:
         logger.warning('%s has no data!' % countryname)
         return None, None
-    dataset.set_dataset_year_range(earliest_year, latest_year)
-
-    file_type = 'csv'
-    resource_data = {
-        'name': 'Conflict Data for %s' % countryname,
-        'description': 'Conflict data with HXL tags',
-    }
-    resource = Resource(resource_data)
-    resource.set_file_type(file_type)
-    file_to_upload = join(folder, 'conflict_data_%s.csv' % countryname)
-    write_list_to_csv(rows, file_to_upload, headers=headers)
-    resource.set_file_to_upload(file_to_upload)
-    dataset.add_update_resource(resource)
-    resource_data = {
-        'name': 'QuickCharts Conflict Data for %s' % countryname,
-        'description': 'Conflict data with HXL tags with columns removed',
-    }
-    resource = Resource(resource_data)
-    resource.set_file_type(file_type)
-    file_to_upload = join(folder, 'qc_conflict_data_%s.csv' % countryname)
-    write_list_to_csv(qcrows, file_to_upload, headers=list(qcrows[0].keys()))
-    resource.set_file_to_upload(file_to_upload)
-    dataset.add_update_resource(resource)
 
     showcase = Showcase({
         'name': '%s-showcase' % slugified_name,

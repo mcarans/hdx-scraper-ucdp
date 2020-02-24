@@ -10,7 +10,7 @@ from os.path import join, expanduser
 from hdx.hdx_configuration import Configuration
 from hdx.utilities.downloader import Download
 
-from hdx.utilities.path import temp_dir
+from hdx.utilities.path import progress_storing_tempdir
 
 from ucdp import generate_dataset_and_showcase, get_countriesdata
 
@@ -18,7 +18,7 @@ from hdx.facades.simple import facade
 
 logger = logging.getLogger(__name__)
 
-lookup = 'hdx-scraper-dhs'
+lookup = 'hdx-scraper-ucdp'
 
 
 def main():
@@ -26,19 +26,18 @@ def main():
 
     configuration = Configuration.read()
     download_url = configuration['download_url']
-    with temp_dir('ucdp') as folder:
-        with Download() as downloader:
-            countriesdata, headers = get_countriesdata(download_url, downloader)
-            logger.info('Number of countries: %d' % len(countriesdata))
-            for countryname in sorted(countriesdata):
-                dataset, showcase = generate_dataset_and_showcase(folder, countryname, countriesdata[countryname], headers)
-                if dataset:
-                    dataset.update_from_yaml()
-                    dataset['notes'] = dataset['notes'].replace('\n', '  \n')  # ensure markdown has line breaks
-                    dataset.create_in_hdx(remove_additional_resources=True, hxl_update=False)
-                    dataset.generate_resource_view(1)
-                    showcase.create_in_hdx()
-                    showcase.add_dataset(dataset)
+    with Download() as downloader:
+        countries, headers, countriesdata = get_countriesdata(download_url, downloader)
+        logger.info('Number of countries: %d' % len(countriesdata))
+        for folder, country in progress_storing_tempdir('UCDP', countries, 'iso3'):
+            dataset, showcase = generate_dataset_and_showcase(folder, country, countriesdata[country['iso3']], headers)
+            if dataset:
+                dataset.update_from_yaml()
+                dataset['notes'] = dataset['notes'].replace('\n', '  \n')  # ensure markdown has line breaks
+                dataset.generate_resource_view(1)
+                dataset.create_in_hdx(remove_additional_resources=True, hxl_update=False, updated_by_script='HDX Scraper: UCDP')
+                showcase.create_in_hdx()
+                showcase.add_dataset(dataset)
 
 
 if __name__ == '__main__':
