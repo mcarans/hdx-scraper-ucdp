@@ -53,7 +53,7 @@ def get_countriesdata(download_url, downloader):
 def generate_dataset_and_showcase(folder, country, countrydata, headers):
     """
     """
-    countryiso  = country['iso3']
+    countryiso = country['iso3']
     countryname = country['countryname']
     title = '%s - Conflict Data' % countryname
     logger.info('Creating dataset: %s' % title)
