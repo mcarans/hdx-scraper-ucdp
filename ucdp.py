@@ -64,7 +64,7 @@ def generate_dataset_and_showcase(folder, country, countrydata, headers):
     })
     dataset.set_maintainer('196196be-6037-4488-8b71-d786adf4c081')
     dataset.set_organization('hdx')
-    dataset.set_expected_update_frequency('Every day')
+    dataset.set_expected_update_frequency('As needed')
     dataset.set_subnational(True)
     dataset.add_country_location(countryiso)
     tags = ['hxl', 'violence and conflict', 'protests', 'security incidents']
