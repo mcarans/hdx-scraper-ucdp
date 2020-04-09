@@ -33,3 +33,8 @@ steps:
 - script: |
     python run.py
   displayName: 'Run scraper'
+  env:
+    USER_AGENT: $(USER_AGENT)
+    PREPREFIX: $(HDXINTERNAL)
+    HDX_KEY: $(HDX_KEY)
+    HDX_SITE: $(HDX_SITE)
